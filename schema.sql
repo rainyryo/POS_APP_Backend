@@ -1,0 +1,41 @@
+-- POSシステム データベーススキーマ
+
+-- 商品マスタ
+CREATE TABLE IF NOT EXISTS product_master (
+    PRD_ID INT AUTO_INCREMENT PRIMARY KEY COMMENT '商品一意キー',
+    CODE CHAR(13) NOT NULL UNIQUE COMMENT '商品コード',
+    NAME VARCHAR(50) NOT NULL COMMENT '商品名称',
+    PRICE INT NOT NULL COMMENT '商品単価',
+    CONSTRAINT chk_code_unique CHECK (CODE IS NOT NULL)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品マスタ';
+
+-- 取引テーブル
+CREATE TABLE IF NOT EXISTS transaction (
+    TRD_ID INT AUTO_INCREMENT PRIMARY KEY COMMENT '取引一意キー',
+    DATETIME TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '取引日時',
+    EMP_CD CHAR(10) DEFAULT '9999999999' COMMENT 'レジ担当者コード',
+    STORE_CD CHAR(5) DEFAULT '30' COMMENT '店舗コード',
+    POS_NO CHAR(3) DEFAULT '90' COMMENT 'POS機ID',
+    TOTAL_AMT INT DEFAULT 0 COMMENT '合計金額'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='取引';
+
+-- 取引明細テーブル
+CREATE TABLE IF NOT EXISTS transaction_detail (
+    TRD_ID INT NOT NULL COMMENT '取引一意キー',
+    DTL_ID INT NOT NULL COMMENT '取引明細一意キー',
+    PRD_ID INT COMMENT '商品一意キー',
+    PRD_CODE CHAR(13) COMMENT '商品コード',
+    PRD_NAME VARCHAR(50) COMMENT '商品名称',
+    PRD_PRICE INT COMMENT '商品単価',
+    PRIMARY KEY (TRD_ID, DTL_ID),
+    FOREIGN KEY (TRD_ID) REFERENCES transaction(TRD_ID) ON DELETE CASCADE,
+    FOREIGN KEY (PRD_ID) REFERENCES product_master(PRD_ID)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='取引明細';
+
+-- サンプルデータの挿入
+INSERT INTO product_master (CODE, NAME, PRICE) VALUES
+('328401', 'フィラーレ 3C 0.7 ブラック', 2200),
+('562901', 'フィラーレ 2+S ブラック', 3300),
+('393820', 'シャーボNu 0.5 セルリアンブルー', 1980),
+('577101', 'ブレン 0.5 ブラック', 165),
+('509541', 'マッキー 極太 ブラック', 495);
